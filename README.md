@@ -5,7 +5,7 @@
 ---
 
 <div align='center'>
-<img src="./InternVideo2/figs/teaser-internvideo2.png" class="interpolation-image" alt="internvideo2_performance." height="96%" width="96%" />
+<img src="https://github.com/OpenGVLab/InternVideo/raw/main/InternVideo2/figs/teaser-internvideo2.png" class="interpolation-image" alt="internvideo2_performance." height="96%" width="96%" />
 </div>
 
 This repo contains InternVideo series and related works in video foundation models.
