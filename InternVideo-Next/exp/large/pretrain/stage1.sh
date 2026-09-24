@@ -7,6 +7,7 @@ JOB_NAME='internvideo_next_vit_large_s1'
 OUTPUT_DIR="$(dirname $0)/$JOB_NAME"
 LOG_DIR="./logs/${JOB_NAME}"
 DATA_PATH='{your_data_here}'
+CLIP_TEACHER_PATH='{your_siglip2_teacher_path}'   # SigLIP2-1B teacher weights, not shipped with this repo
 
 PARTITION='video'
 GPUS=128
@@ -28,6 +29,7 @@ srun -p $PARTITION \
     --reconstruction_ratio 0.0 \
     --model 'internvideo_next_stage1_base' \
     --clip_teacher 'teacher_siglip2_1b_once4all_mm_umt_res256' \
+    --clip_teacher_path ${CLIP_TEACHER_PATH} \
     --clip_input_resolution 256 \
     --clip_input_frame 16 \
     --input_size 224 \

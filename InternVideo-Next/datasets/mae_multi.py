@@ -141,7 +141,7 @@ class VideoMAE_multi(torch.utils.data.Dataset):
                     source, path, total_time, start_time, end_time, target = self.clips[index]
                     if self.video_loader:
                         video_name = os.path.join(self.prefix, path)
-                        if "s3://" in fname:
+                        if "s3://" in video_name:
                             video_bytes = self.client.get(video_name)
                             decord_vr = VideoReader(io.BytesIO(video_bytes),
                                                     num_threads=1,

@@ -81,6 +81,11 @@ def get_args():
     # CLIP decpder parameters
     parser.add_argument('--clip_teacher', default='internvl_clip_6b', type=str,
                         help='Name of CLIP teacher')
+    parser.add_argument('--clip_teacher_path', default=None, type=str,
+                        help='Path (or Hugging Face repo id) of the pre-downloaded SigLIP2 teacher '
+                             'weights used by the stage-1 distillation. The teacher weights are not '
+                             'shipped with this repo; falls back to the INTERNVIDEO_NEXT_TEACHER_PATH '
+                             'environment variable when not given.')
     parser.add_argument('--clip_input_resolution', default=224, type=int,
                         help='input resolution of CLIP decoder')
     parser.add_argument('--clip_teacher_embed_dim', default=3200, type=int,
@@ -284,6 +289,7 @@ def main(args, ds_init):
         clip_return_layer=args.clip_return_layer,
         clip_return_interval=args.clip_teacher_return_interval,
         clip_return_index=args.clip_teacher_return_index,
+        teacher_path=args.clip_teacher_path,
     )
 
     # get dataset

@@ -575,23 +575,18 @@ class SigLipVisionModel(SigLipPreTrainedModel):
 
 
 class SigLipVisionTower(nn.Module):
-    def __init__(self, is_siglip2=False, res=384, size='so', **kwargs):
+    def __init__(self, is_siglip2=False, res=384, size='so', teacher_path=None, **kwargs):
         super().__init__()
 
         self.is_loaded = False
 
-        if res == 384:
-            if size == '1b':
-                self.vision_tower_name = '...' # {pre downloaded path}
-            elif is_siglip2 is False:
-                self.vision_tower_name = '...'
-            else:
-                self.vision_tower_name = '...'
-        else:
-            if size == 'so':
-                self.vision_tower_name = '...'
-            else:
-                self.vision_tower_name = '...'
+        # The teacher weights are not distributed with the code. Provide them either
+        # through `--clip_teacher_path` (CLI), the `teacher_path` argument of the
+        # teacher builders, or the INTERNVIDEO_NEXT_TEACHER_PATH environment variable.
+        # Both a local directory and a Hugging Face repo id are accepted.
+        if teacher_path is None:
+            teacher_path = os.environ.get('INTERNVIDEO_NEXT_TEACHER_PATH', None)
+        self.vision_tower_name = teacher_path
 
         self.config = SigLipVisionConfig(image_size=res, **kwargs)
 
@@ -602,6 +597,15 @@ class SigLipVisionTower(nn.Module):
     def load_model(self, device_map=None):
         if self.is_loaded:
             return
+
+        if not self.vision_tower_name:
+            raise RuntimeError(
+                "No SigLip teacher path was given. InternVideo-Next stage-1 distills "
+                "from a SigLIP2-1B teacher (hidden_size=1536, num_hidden_layers=40, "
+                "patch_size=16) whose weights are not shipped with this repo. Pass "
+                "--clip_teacher_path /path/to/teacher (or a HF repo id), or export "
+                "INTERNVIDEO_NEXT_TEACHER_PATH."
+            )
 
         self.vision_tower = SigLipVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map, config=self.config)
 
@@ -661,6 +665,7 @@ def teacher_siglip_400M_once4all_mm_umt(
         clip_return_layer=1,
         clip_return_interval=1,
         clip_return_index=None,
+        teacher_path=None,
     ):
     model = SigLipVisionTower(
         clip_norm_type=clip_norm_type,
@@ -668,6 +673,7 @@ def teacher_siglip_400M_once4all_mm_umt(
         clip_return_layer=clip_return_layer,
         clip_return_interval=clip_return_interval,
         clip_return_index=clip_return_index,
+        teacher_path=teacher_path,
     )
     print("Loaded teacher model Siglip. Successed.")
     return model
@@ -678,6 +684,7 @@ def teacher_siglip2_400M_once4all_mm_umt(
         clip_return_layer=1,
         clip_return_interval=1,
         clip_return_index=None,
+        teacher_path=None,
     ):
     model = SigLipVisionTower(
         clip_norm_type=clip_norm_type,
@@ -686,6 +693,7 @@ def teacher_siglip2_400M_once4all_mm_umt(
         clip_return_interval=clip_return_interval,
         clip_return_index=clip_return_index,
         is_siglip2=True,
+        teacher_path=teacher_path,
     )
     print("Loaded teacher model Siglip. Successed.")
     return model
@@ -696,6 +704,7 @@ def teacher_siglip2_1b_once4all_mm_umt_res256(
     clip_return_layer=1,
     clip_return_interval=1,
     clip_return_index=None,
+    teacher_path=None,
 ):
     model = SigLipVisionTower(
         clip_norm_type=clip_norm_type,
@@ -704,6 +713,7 @@ def teacher_siglip2_1b_once4all_mm_umt_res256(
         clip_return_interval=clip_return_interval,
         clip_return_index=clip_return_index,
         is_siglip2=True,
+        teacher_path=teacher_path,
         res=256,
         size='1b',
         intermediate_size=6144,
@@ -721,6 +731,7 @@ def teacher_siglip2_1b_once4all_mm_umt_res384(
     clip_return_layer=1,
     clip_return_interval=1,
     clip_return_index=None,
+    teacher_path=None,
 ):
     model = SigLipVisionTower(
         clip_norm_type=clip_norm_type,
@@ -729,6 +740,7 @@ def teacher_siglip2_1b_once4all_mm_umt_res384(
         clip_return_interval=clip_return_interval,
         clip_return_index=clip_return_index,
         is_siglip2=True,
+        teacher_path=teacher_path,
         res=384,
         size='1b',
         intermediate_size=6144,
@@ -746,6 +758,7 @@ def teacher_siglip2_400M_once4all_mm_umt_res224(
         clip_return_layer=1,
         clip_return_interval=1,
         clip_return_index=None,
+        teacher_path=None,
     ):
     model = SigLipVisionTower(
         clip_norm_type=clip_norm_type,
@@ -754,6 +767,7 @@ def teacher_siglip2_400M_once4all_mm_umt_res224(
         clip_return_interval=clip_return_interval,
         clip_return_index=clip_return_index,
         is_siglip2=True,
+        teacher_path=teacher_path,
         res=224,
     )
     print("Loaded teacher model Siglip. Successed.")
